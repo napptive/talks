@@ -1,0 +1,41 @@
+apiVersion: core.oam.dev/v1alpha2
+kind: Component
+metadata:
+  name: mysql-db
+spec:
+  workload:
+    apiVersion: core.oam.dev/v1alpha2
+    kind: ContainerizedWorkload
+    metadata:
+      name: mysql-db
+    spec:
+      osType: linux
+      containers:
+        - name: mysql
+          securityContext:
+            runAsUser: 1001
+          image: mysql:5.7
+          imagePullPolicy: IfNotPresent
+          resources:
+            cpu:
+              required: 150m
+            memory:
+              required: 256Mi
+          ports:
+            - name: port
+              value: 3306
+              containerPort: 3306
+              type: tcp
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: ""
+  parameters:
+    - name: password
+      required: true
+      fieldPaths:
+        - "spec.containers[0].env[0].value"
+    - name: portNumber
+      required: false
+      fieldPaths:
+        - "spec.containers[0].ports[0].value"
+        - "spec.containers[0].ports[0].containerPort"
