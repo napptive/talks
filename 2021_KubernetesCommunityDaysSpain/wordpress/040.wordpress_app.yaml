@@ -1,0 +1,43 @@
+apiVersion: core.oam.dev/v1alpha2
+kind: ApplicationConfiguration
+metadata:
+  name: my-wordpress
+  annotations:
+    version: v1.0.0
+    description: "Customized version of wordpress-mysql"
+spec:
+  components:
+    - componentName: mysql-db
+      parameterValues:
+        - name: password
+          value: "root"
+        - name: portNumber
+          value: 3306
+      scopes:
+        - scopeRef:
+            apiVersion: core.oam.dev/v1alpha2
+            kind: HealthScope
+            name: wordpress-health
+    - componentName: wordpress
+      parameterValues:
+        - name: dbpass
+          value: "root"
+        - name: host
+          value: "mysql-db"
+      traits:
+        - trait:
+            apiVersion: core.napptive.com/v1alpha1
+            kind: Ingress
+            metadata:
+              name: wp-ingress
+            spec:
+              name: wordpress
+              protocol: HTTP
+              port: 8080
+              path: /
+              rewritePath: /
+      scopes:
+        - scopeRef:
+            apiVersion: core.oam.dev/v1alpha2
+            kind: HealthScope
+            name: wordpress-health

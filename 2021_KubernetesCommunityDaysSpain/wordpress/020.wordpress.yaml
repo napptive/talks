@@ -1,0 +1,55 @@
+apiVersion: core.oam.dev/v1alpha2
+kind: Component
+metadata:
+  name: wordpress
+spec:
+  workload:
+    apiVersion: core.oam.dev/v1alpha2
+    kind: ContainerizedWorkload
+    metadata:
+      name: wordpress
+    spec:
+      osType: linux
+      containers:
+        - name: wordpress
+          securityContext:
+            runAsUser: 1001
+          image: bitnami/wordpress:5.7.0
+          imagePullPolicy: IfNotPresent
+          resources:
+            cpu:
+              required: 150m
+            memory:
+              required: 256Mi
+          ports:
+            - containerPort: 8080
+              name: wordpressport
+              protocol: TCP
+          env:
+            - name: MARIADB_HOST
+              value: ""
+            - name: WORDPRESS_DATABASE_PASSWORD
+              value: ""
+            - name: WORDPRESS_DATABASE_USER
+              value: "root"
+            - name: WORDPRESS_DATABASE_NAME
+              value: "bitnami_wordpress"
+            - name: MYSQL_CLIENT_CREATE_DATABASE_NAME
+              value: "bitnami_wordpress"
+            - name: MYSQL_CLIENT_CREATE_DATABASE_USER
+              value: "root"
+            - name: MYSQL_CLIENT_CREATE_DATABASE_PASSWORD
+              value: ""
+            - name: MARIADB_ROOT_PASSWORD
+              value: ""
+  parameters:
+    - name: host
+      required: true
+      fieldPaths:
+        - "spec.containers[0].env[0].value"
+    - name: dbpass
+      required: true
+      fieldPaths:
+        - "spec.containers[0].env[1].value"
+        - "spec.containers[0].env[6].value"
+        - "spec.containers[0].env[7].value"
